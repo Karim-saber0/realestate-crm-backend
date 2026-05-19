@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_real_estate_installment_line_tree" model="ir.ui.view">
+            <field name="name">real.estate.installment.line.tree</field>
+            <field name="model">real.estate.installment.line</field>
+            <field name="arch" type="xml">
+                <list string="Installments" create="true" edit="true">
+                    <field name="installment_no"/>
+                    <field name="installment_type"/>
+                    <field name="due_date"/>
+                    <field name="amount" sum="Total Amount"/>
+                    <field name="discount_amount" sum="Total Discount"/>
+                    <field name="remaining_installment" sum="Total Installment"/>
+                    <field name="remaining_penalty" sum="Total Penalty"/>
+                    <field name="total_payable" sum="Total Payable"/>
+                    <field name="status" widget="badge"
+                           decoration-success="status == 'paid'"
+                           decoration-warning="status in ('partial', 'late')"
+                           decoration-danger="status == 'legal'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_real_estate_installment_line_form" model="ir.ui.view">
+            <field name="name">real.estate.installment.line.form</field>
+            <field name="model">real.estate.installment.line</field>
+            <field name="arch" type="xml">
+                <form string="Installment Line">
+                    <header>
+                        <button name="action_invoice_installment" type="object" string="Invoice Installment"
+                                class="btn-secondary"
+                                invisible="remaining_installment &lt;= 0"/>
+                        <button name="action_invoice_penalty" type="object" string="Invoice Penalty"
+                                class="btn-secondary"
+                                invisible="remaining_penalty &lt;= 0"/>
+                        <button name="action_pay_installment_partial" type="object" string="Pay Installment"
+                                class="btn-primary"
+                                invisible="remaining_installment &lt;= 0"/>
+                        <button name="action_pay_penalty_partial" type="object" string="Pay Penalty"
+                                class="btn-secondary"
+                                invisible="remaining_penalty &lt;= 0"/>
+                        <button name="action_pay_all" type="object" string="Pay All" class="btn-primary"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="lead_id" readonly="1"/>
+                                <field name="installment_no"/>
+                                <field name="installment_type"/>
+                                <field name="due_date"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="amount"/>
+                                <field name="discount_amount"/>
+                                <field name="grace_days"/>
+                                <field name="penalty_rate"/>
+                                <field name="penalty_amount_fixed"/>
+                            </group>
+                        </group>
+                        <group string="Balances">
+                            <group>
+                                <field name="paid_installment"/>
+                                <field name="paid_penalty"/>
+                                <field name="amount_paid"/>
+                            </group>
+                            <group>
+                                <field name="remaining_installment"/>
+                                <field name="remaining_penalty"/>
+                                <field name="penalty_value"/>
+                                <field name="total_payable"/>
+                                <field name="status"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Payments">
+                                <field name="payment_ids" readonly="1"/>
+                            </page>
+                            <page string="Invoices">
+                                <field name="invoice_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

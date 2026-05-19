@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_real_estate_installment_system_tree" model="ir.ui.view">
+            <field name="name">real.estate.installment.system.tree</field>
+            <field name="model">real.estate.installment.system</field>
+            <field name="arch" type="xml">
+                <list string="Installment Templates">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="duration_years"/>
+                    <field name="payment_frequency"/>
+                    <field name="installment_count"/>
+                    <field name="scope_project_enabled"/>
+                    <field name="scope_phase_enabled"/>
+                    <field name="valid_from"/>
+                    <field name="valid_to"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_real_estate_installment_system_form" model="ir.ui.view">
+            <field name="name">real.estate.installment.system.form</field>
+            <field name="model">real.estate.installment.system</field>
+            <field name="arch" type="xml">
+                <form string="Installment Template">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <group>
+                            <group string="General">
+                                <field name="active"/>
+                                <field name="code"/>
+                                <field name="name"/>
+                                <field name="valid_from"/>
+                                <field name="valid_to"/>
+                                <field name="grace_period_days"/>
+                            </group>
+                            <group string="Plan">
+                                <field name="duration_years"/>
+                                <field name="payment_frequency"/>
+                                <field name="installments_per_year" readonly="1"/>
+                                <field name="installment_count" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Contract discount (applied first)">
+                            <group>
+                                <field name="disc_type"/>
+                                <field name="discount_percent" invisible="disc_type != 'percent'"/>
+                                <field name="discount_amount" invisible="disc_type != 'amount'"/>
+                            </group>
+                        </group>
+                        <group string="Down payment">
+                            <group>
+                                <field name="dp_type"/>
+                                <field name="down_payment_percent" invisible="dp_type != 'percent'"/>
+                                <field name="down_payment_amount" invisible="dp_type != 'amount'"/>
+                            </group>
+                        </group>
+                        <group string="Template availability (opportunity must match when enabled)">
+                            <group>
+                                <field name="scope_project_enabled"/>
+                                <field name="scope_project_id" invisible="not scope_project_enabled" required="scope_project_enabled"/>
+                                <field name="scope_phase_enabled"/>
+                                <field name="scope_phase_id" invisible="not scope_phase_enabled" required="scope_phase_enabled"/>
+                            </group>
+                        </group>
+                        <group string="Bullet payments (extra periodic amounts)">
+                            <div class="text-muted mb-2" colspan="2">
+                                Add one row per bullet rule. Total bullets are subtracted from the amount after discount
+                                (together with down payment) before splitting the remainder across regular installments.
+                            </div>
+                            <field name="bullet_line_ids" nolabel="1" colspan="2">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="frequency"/>
+                                    <field name="value_type"/>
+                                    <field name="amount_value"/>
+                                </list>
+                            </field>
+                        </group>
+                        <group string="Penalty (applied on overdue installment lines)">
+                            <group>
+                                <field name="pen_type"/>
+                                <field name="penalty_percent" invisible="pen_type != 'percent'"/>
+                                <field name="penalty_amount" invisible="pen_type != 'amount'"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_real_estate_installment_system_search" model="ir.ui.view">
+            <field name="name">real.estate.installment.system.search</field>
+            <field name="model">real.estate.installment.system</field>
+            <field name="arch" type="xml">
+                <search string="Installment Templates">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <separator/>
+                    <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_real_estate_installment_system" model="ir.actions.act_window">
+            <field name="name">Installment Templates</field>
+            <field name="res_model">real.estate.installment.system</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_real_estate_installment_system_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+
+    </data>
+</odoo>

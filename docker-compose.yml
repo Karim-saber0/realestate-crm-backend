@@ -1,0 +1,26 @@
+services:
+  db-odoo18:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+    volumes:
+      - odoo18-db-data:/var/lib/postgresql/data
+
+  odoo18:
+    image: odoo:18.0
+    depends_on:
+      - db-odoo18
+    ports:
+      - "8018:8069"  # Access Odoo 18 via http://localhost:8018
+    environment:
+      - HOST=db-odoo18
+      - USER=odoo
+      - PASSWORD=odoo
+    volumes:
+      - odoo18-web-data:/var/lib/odoo
+      - "D:/odoo18-docker/custom-addons:/mnt/extra-addons"
+volumes:
+  odoo18-db-data:
+  odoo18-web-data:

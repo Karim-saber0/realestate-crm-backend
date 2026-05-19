@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+
+# Environment
+.env
+.venv/
+
+# Docker volumes
+postgres_data/
+data/
+
+# Logs
+*.log
+
+# Odoo filestore
+filestore/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

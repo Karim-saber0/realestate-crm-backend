@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Demo Developer -->
+        <record id="demo_developer" model="res.partner">
+            <field name="name">Demo Real Estate Developer</field>
+            <field name="is_company">True</field>
+            <field name="email">info@demodeveloper.com</field>
+            <field name="phone">+1-555-0123</field>
+            <field name="street">123 Business Street</field>
+            <field name="city">Demo City</field>
+            <field name="zip">12345</field>
+            <field name="country_id" ref="base.us"/>
+        </record>
+
+        <!-- Demo Project -->
+        <record id="demo_project" model="real.estate.project">
+            <field name="name">Sunset Gardens</field>
+            <field name="code">SG001</field>
+            <field name="description">A luxury residential project with modern amenities and beautiful landscaping.</field>
+            <field name="developer_id" ref="demo_developer"/>
+            <field name="location">456 Sunset Boulevard, Demo City</field>
+            <field name="latitude">40.7128</field>
+            <field name="longitude">-74.0060</field>
+            <field name="city">Demo City</field>
+            <field name="country_id" ref="base.us"/>
+            <field name="zip">12345</field>
+            <field name="project_type">residential</field>
+            <field name="status">construction</field>
+            <field name="start_date">2023-01-01</field>
+            <field name="completion_date">2024-12-31</field>
+        </record>
+
+        <!-- Demo Sector -->
+        <record id="demo_sector" model="real.estate.sector">
+            <field name="name">Sector A</field>
+            <field name="code">A</field>
+            <field name="description">Premium residential sector with luxury apartments</field>
+            <field name="project_id" ref="demo_project"/>
+            <field name="location">Sector A, Sunset Gardens</field>
+            <field name="latitude">40.7130</field>
+            <field name="longitude">-74.0058</field>
+            <field name="sector_type">residential</field>
+            <field name="status">construction</field>
+        </record>
+
+        <!-- Demo Building -->
+        <record id="demo_building" model="real.estate.building">
+            <field name="name">Building 1</field>
+            <field name="code">B1</field>
+            <field name="description">Modern apartment building with 20 floors</field>
+            <field name="project_id" ref="demo_project"/>
+            <field name="sector_id" ref="demo_sector"/>
+            <field name="location">Building 1, Sector A</field>
+            <field name="latitude">40.7132</field>
+            <field name="longitude">-74.0056</field>
+            <field name="building_type">apartment</field>
+            <field name="status">construction</field>
+            <field name="floors">20</field>
+        </record>
+
+        <!-- Demo Units -->
+        <record id="demo_unit_1" model="real.estate.unit">
+            <field name="name">Unit 101</field>
+            <field name="code">U101</field>
+            <field name="description">Spacious 2-bedroom apartment with city view</field>
+            <field name="project_id" ref="demo_project"/>
+            <field name="sector_id" ref="demo_sector"/>
+            <field name="building_id" ref="demo_building"/>
+            <field name="floor">1</field>
+            <field name="unit_type">br2</field>
+            <field name="bedrooms">2</field>
+            <field name="bathrooms">2</field>
+            <field name="area_sqft">1200</field>
+            <field name="price">500000</field>
+            <field name="location">Unit 101, Building 1</field>
+            <field name="latitude">40.7134</field>
+            <field name="longitude">-74.0054</field>
+            <field name="status">available</field>
+            <field name="features">City view, Modern kitchen, Balcony</field>
+            <field name="balcony">True</field>
+            <field name="parking">True</field>
+        </record>
+
+        <record id="demo_unit_2" model="real.estate.unit">
+            <field name="name">Unit 201</field>
+            <field name="code">U201</field>
+            <field name="description">Luxury 3-bedroom penthouse with panoramic views</field>
+            <field name="project_id" ref="demo_project"/>
+            <field name="sector_id" ref="demo_sector"/>
+            <field name="building_id" ref="demo_building"/>
+            <field name="floor">2</field>
+            <field name="unit_type">br3</field>
+            <field name="bedrooms">3</field>
+            <field name="bathrooms">3</field>
+            <field name="area_sqft">1800</field>
+            <field name="price">750000</field>
+            <field name="location">Unit 201, Building 1</field>
+            <field name="latitude">40.7136</field>
+            <field name="longitude">-74.0052</field>
+            <field name="status">available</field>
+            <field name="features">Panoramic views, Premium finishes, Private terrace</field>
+            <field name="balcony">True</field>
+            <field name="parking">True</field>
+            <field name="furnished">True</field>
+        </record>
+
+        <!-- Demo Customer -->
+        <record id="demo_customer" model="res.partner">
+            <field name="name">John Smith</field>
+            <field name="is_company">False</field>
+            <field name="email">john.smith@email.com</field>
+            <field name="phone">+1-555-0456</field>
+            <field name="mobile">+1-555-0457</field>
+            <field name="street">789 Customer Street</field>
+            <field name="city">Customer City</field>
+            <field name="zip">54321</field>
+            <field name="country_id" ref="base.us"/>
+        </record>
+
+        <!-- Demo Opportunity -->
+        <record id="demo_opportunity" model="crm.lead">
+            <field name="name">John Smith - Unit 101 Interest</field>
+            <field name="partner_id" ref="demo_customer"/>
+            <field name="project_id" ref="demo_project"/>
+            <field name="sector_id" ref="demo_sector"/>
+            <field name="building_id" ref="demo_building"/>
+            <field name="unit_id" ref="demo_unit_1"/>
+            <field name="property_type">residential</field>
+            <field name="budget_min">450000</field>
+            <field name="budget_max">550000</field>
+            <field name="preferred_location">Demo City</field>
+            <field name="move_in_date">2024-06-01</field>
+            <field name="financing_needed">True</field>
+            <field name="expected_revenue">500000</field>
+            <field name="probability">75</field>
+            <field name="agent_latitude">40.7128</field>
+            <field name="agent_longitude">-74.0060</field>
+        </record>
+
+    </data>
+</odoo>

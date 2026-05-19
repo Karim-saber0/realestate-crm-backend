@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- CRM Lead Form View Extension -->
+        <record id="view_crm_lead_form_real_estate" model="ir.ui.view">
+            <field name="name">crm.lead.form.real.estate</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='stage_id']" position="attributes">
+                    <attribute name="domain">[('stage_scope', 'in', ['both', type])]</attribute>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="co_sales_id" invisible="type != 'opportunity'"/>
+                </xpath>
+                <!-- Add invisible computed fields for button visibility in the form -->
+                <xpath expr="//field[@name='expected_revenue']" position="after">
+                    <field name="show_create_loi_button" invisible="1"/>
+                    <field name="show_view_loi_button" invisible="1"/>
+                    <field name="show_generate_installments_button" invisible="1"/>
+                    <field name="show_share_unit_button" invisible="1"/>
+                </xpath>
+                <!-- Add Real Estate Information page in the notebook after Extra Information -->
+                <xpath expr="//page[@name='lead']" position="after">
+                    <page string="Real Estate Information" name="real_estate_info">
+                        <group>
+                            <group>
+                                <field name="customer_id" readonly="1"/>
+                                <field name="project_id"/>
+                                <field name="sector_id"/>
+                                <field name="building_id"/>
+                                <field name="unit_id"/>
+                            </group>
+                            <group>
+                                <field name="property_type"/>
+                                <field name="budget_min"/>
+                                <field name="budget_max"/>
+                                <field name="preferred_location"/>
+                                <field name="move_in_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="financing_needed"/>
+                                <field name="pre_approved"/>
+                            </group>
+                            <group>
+                                <field name="agent_latitude"/>
+                                <field name="agent_longitude"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="unit_type" readonly="1"/>
+                            <field name="unit_area_sqft" readonly="1"/>
+                            <field name="unit_price" readonly="1"/>
+                            <field name="unit_bedrooms" readonly="1"/>
+                            <field name="unit_bathrooms" readonly="1"/>
+                        </group>
+                    </page>
+                    <page string="Installments" name="installments" invisible="type != 'opportunity'">
+                        <group>
+                            <group>
+                                <field name="installment_base_price"/>
+                                <field name="installment_system_id"
+                                       domain="['&amp;', '|', '|', ('scope_project_enabled', '=', False), ('scope_project_id', '=', False), ('scope_project_id', '=', project_id), '|', '|', ('scope_phase_enabled', '=', False), ('scope_phase_id', '=', False), ('scope_phase_id', '=', sector_id)]"/>
+                                <field name="installment_start_date"/>
+                            </group>
+                        </group>
+                        <field name="installment_line_ids" nolabel="1"
+                               context="{'default_currency_id': currency_id}"
+                               options="{'no_open': False}">
+                            <list editable="bottom">
+                                <field name="installment_no" readonly="1"/>
+                                <field name="installment_type"/>
+                                <field name="due_date"/>
+                                <field name="amount"/>
+                                <field name="discount_amount"/>
+                                <field name="remaining_installment"/>
+                                <field name="remaining_penalty"/>
+                                <field name="total_payable"/>
+                                <field name="status"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//header" position="inside">
+                    <button name="action_create_loi" type="object" string="Create LOI" class="btn-secondary" invisible="not show_create_loi_button"/>
+                    <button name="action_view_loi" type="object" string="View LOI" class="btn-secondary" invisible="not show_view_loi_button"/>
+                    <button name="action_generate_installment_schedule" type="object" string="Generate Schedule" class="btn-secondary"
+                            invisible="not show_generate_installments_button or type != 'opportunity'"/>
+                    <button name="action_share_unit_whatsapp" type="object" string="Share Unit" class="btn-success" invisible="not show_share_unit_button"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- CRM Lead Tree View Extension -->
+        <record id="view_crm_lead_tree_real_estate" model="ir.ui.view">
+            <field name="name">crm.lead.tree.real.estate</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="inside">
+                    <field name="customer_id"/>
+                    <field name="co_sales_id"/>
+                    <field name="project_id"/>
+                    <field name="unit_id"/>
+                    <field name="property_type"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- CRM Lead Search View Extension -->
+        <record id="view_crm_lead_search_real_estate" model="ir.ui.view">
+            <field name="name">crm.lead.search.real.estate</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <field name="customer_id"/>
+                    <field name="co_sales_id"/>
+                    <field name="project_id"/>
+                    <field name="unit_id"/>
+                    <field name="property_type"/>
+                    <separator/>
+                    <filter string="Real Estate Opportunities" name="real_estate" domain="[('project_id', '!=', False)]"/>
+                    <filter string="Residential" name="residential" domain="[('property_type', '=', 'residential')]"/>
+                    <filter string="Commercial" name="commercial" domain="[('property_type', '=', 'commercial')]"/>
+                    <filter string="With Unit" name="with_unit" domain="[('unit_id', '!=', False)]"/>
+                    <filter string="Financing Needed" name="financing" domain="[('financing_needed', '=', True)]"/>
+                </xpath>
+                <xpath expr="//search" position="inside">
+                    <group expand="0" string="Group By">
+                        <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                        <filter string="Property Type" name="group_property_type" context="{'group_by': 'property_type'}"/>
+                        <filter string="Unit Type" name="group_unit_type" context="{'group_by': 'unit_type'}"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

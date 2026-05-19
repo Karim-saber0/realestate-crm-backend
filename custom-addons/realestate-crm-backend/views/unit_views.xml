@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Unit Tree View -->
+        <record id="view_real_estate_unit_tree" model="ir.ui.view">
+            <field name="name">real.estate.unit.tree</field>
+            <field name="model">real.estate.unit</field>
+            <field name="arch" type="xml">
+                <list string="Real Estate Units">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="developer_id"/>
+                    <field name="broker_id"/>
+                    <field name="sector_id"/>
+                    <field name="building_id"/>
+                    <field name="floor"/>
+                    <field name="unit_category_id"/>
+                    <field name="unit_subcategory_id"/>
+                    <field name="unit_type"/>
+                    <field name="area_sqft"/>
+                    <field name="price"/>
+                    <field name="status"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Unit Form View -->
+        <record id="view_real_estate_unit_form" model="ir.ui.view">
+            <field name="name">real.estate.unit.form</field>
+            <field name="model">real.estate.unit</field>
+            <field name="arch" type="xml">
+                <form string="Real Estate Unit">
+                    <header>
+                        <button name="action_share_whatsapp" type="object" string="Share via WhatsApp" class="btn-success"/>
+                        <button name="action_view_opportunities" type="object" string="View Opportunities" class="btn-primary"/>
+                        <button name="action_view_lois" type="object" string="View LOIs" class="btn-secondary"/>
+                        <field name="status" widget="statusbar" statusbar_visible="available,reserved,sold"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Unit Name"/>
+                            </h1>
+                            <h3>
+                                <field name="code" placeholder="Unit Code"/>
+                            </h3>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project_id"/>
+                                <field name="developer_id" readonly="1"/>
+                                <field name="broker_id"/>
+                                <field name="sector_id"/>
+                                <field name="building_id"/>
+                                <field name="floor"/>
+                                <field name="unit_category_id"/>
+                                <field name="unit_subcategory_id"/>
+                                <field name="unit_type"/>
+                                <field name="status"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="bedrooms"/>
+                                <field name="bathrooms"/>
+                                <field name="area_sqft"/>
+                                <field name="area_sqm" readonly="1"/>
+                                <field name="price"/>
+                                <field name="currency_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="location"/>
+                                <field name="latitude"/>
+                                <field name="longitude"/>
+                            </group>
+                            <group>
+                                <field name="balcony"/>
+                                <field name="parking"/>
+                                <field name="furnished"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description" nolabel="1"/>
+                        </group>
+                        <group>
+                            <field name="features" nolabel="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Opportunities">
+                                <field name="opportunity_ids">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="partner_id"/>
+                                        <field name="stage_id"/>
+                                        <field name="expected_revenue"/>
+                                        <field name="probability"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Letters of Intent">
+                                <field name="loi_ids">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="customer_id"/>
+                                        <field name="loi_date"/>
+                                        <field name="expiry_date"/>
+                                        <field name="status"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Unit Search View -->
+        <record id="view_real_estate_unit_search" model="ir.ui.view">
+            <field name="name">real.estate.unit.search</field>
+            <field name="model">real.estate.unit</field>
+            <field name="arch" type="xml">
+                <search string="Search Units">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="project_id"/>
+                    <field name="developer_id"/>
+                    <field name="broker_id"/>
+                    <field name="sector_id"/>
+                    <field name="building_id"/>
+                    <field name="unit_category_id"/>
+                    <field name="unit_subcategory_id"/>
+                    <separator/>
+                    <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Available" name="available" domain="[('status', '=', 'available')]"/>
+                    <filter string="Reserved" name="reserved" domain="[('status', '=', 'reserved')]"/>
+                    <filter string="Sold" name="sold" domain="[('status', '=', 'sold')]"/>
+                    <filter string="Rented" name="rented" domain="[('status', '=', 'rented')]"/>
+                    <separator/>
+                    <filter string="Studio" name="studio" domain="[('unit_type', '=', 'studio')]"/>
+                    <filter string="1 Bedroom" name="br1" domain="[('unit_type', '=', 'br1')]"/>
+                    <filter string="2 Bedrooms" name="br2" domain="[('unit_type', '=', 'br2')]"/>
+                    <filter string="3 Bedrooms" name="br3" domain="[('unit_type', '=', 'br3')]"/>
+                    <separator/>
+                    <filter string="With Balcony" name="balcony" domain="[('balcony', '=', True)]"/>
+                    <filter string="With Parking" name="parking" domain="[('parking', '=', True)]"/>
+                    <filter string="Furnished" name="furnished" domain="[('furnished', '=', True)]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                        <filter string="Developer" name="group_developer" context="{'group_by': 'developer_id'}"/>
+                        <filter string="Broker" name="group_broker" context="{'group_by': 'broker_id'}"/>
+                        <filter string="Sector" name="group_sector" context="{'group_by': 'sector_id'}"/>
+                        <filter string="Building" name="group_building" context="{'group_by': 'building_id'}"/>
+                        <filter string="Type" name="group_unit_category" context="{'group_by': 'unit_category_id'}"/>
+                        <filter string="Sub Type" name="group_unit_subcategory" context="{'group_by': 'unit_subcategory_id'}"/>
+                        <filter string="Unit Type" name="group_type" context="{'group_by': 'unit_type'}"/>
+                        <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                        <filter string="Floor" name="group_floor" context="{'group_by': 'floor'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Unit Action -->
+        <record id="action_real_estate_unit" model="ir.actions.act_window">
+            <field name="name">Real Estate Units</field>
+            <field name="res_model">real.estate.unit</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_real_estate_unit_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- LOI Report -->
+        <record id="action_report_loi" model="ir.actions.report">
+            <field name="name">Letter of Intent</field>
+            <field name="model">real.estate.loi</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">real_estate_crm.report_loi_document</field>
+            <field name="report_file">real_estate_crm.report_loi_document</field>
+            <field name="binding_model_id" ref="model_real_estate_loi"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- LOI Report Template -->
+        <template id="report_loi_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <div class="oe_structure"/>
+                            
+                            <div class="row">
+                                <div class="col-6">
+                                    <h2>Letter of Intent</h2>
+                                    <p><strong>LOI Number:</strong> <span t-field="o.name"/></p>
+                                    <p><strong>Date:</strong> <span t-field="o.loi_date"/></p>
+                                    <p><strong>Valid Until:</strong> <span t-field="o.expiry_date"/></p>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <h3>Customer Information</h3>
+                                    <p><strong>Name:</strong> <span t-field="o.customer_id.name"/></p>
+                                    <p><strong>Email:</strong> <span t-field="o.customer_id.email"/></p>
+                                    <p><strong>Phone:</strong> <span t-field="o.customer_id.phone"/></p>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h3>Property Information</h3>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <td><strong>Project:</strong></td>
+                                            <td><span t-field="o.project_id.name"/></td>
+                                            <td><strong>Sector:</strong></td>
+                                            <td><span t-field="o.sector_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Building:</strong></td>
+                                            <td><span t-field="o.building_id.name"/></td>
+                                            <td><strong>Unit:</strong></td>
+                                            <td><span t-field="o.unit_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Unit Type:</strong></td>
+                                            <td><span t-field="o.unit_type"/></td>
+                                            <td><strong>Area:</strong></td>
+                                            <td><span t-field="o.unit_area_sqft"/> sq ft</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Price:</strong></td>
+                                            <td><span t-field="o.unit_price"/> <span t-field="o.currency_id.symbol"/></td>
+                                            <td><strong>Reservation:</strong></td>
+                                            <td><span t-field="o.reservation_amount"/> <span t-field="o.currency_id.symbol"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h3>Terms and Conditions</h3>
+                                    <div t-if="o.payment_terms">
+                                        <h4>Payment Terms:</h4>
+                                        <p t-field="o.payment_terms"/>
+                                    </div>
+                                    <div t-if="o.special_conditions">
+                                        <h4>Special Conditions:</h4>
+                                        <p t-field="o.special_conditions"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h3>Location</h3>
+                                    <p><strong>Address:</strong> <span t-field="o.unit_id.location"/></p>
+                                    <div t-if="o.unit_latitude and o.unit_longitude">
+                                        <p><strong>Coordinates:</strong> <span t-field="o.unit_latitude"/>, <span t-field="o.unit_longitude"/></p>
+                                        <p><strong>Map Link:</strong> https://maps.google.com/?q=<span t-field="o.unit_latitude"/>,<span t-field="o.unit_longitude"/></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h3>Notes</h3>
+                                    <p t-field="o.notes"/>
+                                </div>
+                            </div>
+
+                            <div class="row mt-5">
+                                <div class="col-6">
+                                    <h4>Customer Signature</h4>
+                                    <p>_________________________</p>
+                                    <p>Date: _________________</p>
+                                </div>
+                                <div class="col-6">
+                                    <h4>Company Signature</h4>
+                                    <p>_________________________</p>
+                                    <p>Date: _________________</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Building Tree View -->
+        <record id="view_real_estate_building_tree" model="ir.ui.view">
+            <field name="name">real.estate.building.tree</field>
+            <field name="model">real.estate.building</field>
+            <field name="arch" type="xml">
+                <list string="Real Estate Buildings">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="developer_id"/>
+                    <field name="sector_id"/>
+                    <field name="building_type"/>
+                    <field name="floors"/>
+                    <field name="status"/>
+                    <field name="total_units"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Building Form View -->
+        <record id="view_real_estate_building_form" model="ir.ui.view">
+            <field name="name">real.estate.building.form</field>
+            <field name="model">real.estate.building</field>
+            <field name="arch" type="xml">
+                <form string="Real Estate Building">
+                    <header>
+                        <button name="action_view_units" type="object" string="View Units" class="btn-primary"/>
+                        <button name="action_view_opportunities" type="object" string="View Opportunities" class="btn-secondary"/>
+                        <field name="status" widget="statusbar" statusbar_visible="planning,construction,completed"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Building Name"/>
+                            </h1>
+                            <h3>
+                                <field name="code" placeholder="Building Code"/>
+                            </h3>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="project_id"/>
+                                <field name="developer_id" readonly="1"/>
+                                <field name="sector_id"/>
+                                <field name="building_type"/>
+                                <field name="floors"/>
+                                <field name="status"/>
+                                <field name="total_units" readonly="1"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="location"/>
+                                <field name="latitude"/>
+                                <field name="longitude"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description" nolabel="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Units">
+                                <field name="unit_ids">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="floor"/>
+                                        <field name="unit_type"/>
+                                        <field name="area_sqft"/>
+                                        <field name="price"/>
+                                        <field name="status"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Opportunities">
+                                <field name="opportunity_ids">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="partner_id"/>
+                                        <field name="stage_id"/>
+                                        <field name="expected_revenue"/>
+                                        <field name="probability"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Building Search View -->
+        <record id="view_real_estate_building_search" model="ir.ui.view">
+            <field name="name">real.estate.building.search</field>
+            <field name="model">real.estate.building</field>
+            <field name="arch" type="xml">
+                <search string="Search Buildings">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="project_id"/>
+                    <field name="developer_id"/>
+                    <field name="sector_id"/>
+                    <separator/>
+                    <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Planning" name="planning" domain="[('status', '=', 'planning')]"/>
+                    <filter string="Under Construction" name="construction" domain="[('status', '=', 'construction')]"/>
+                    <filter string="Completed" name="completed" domain="[('status', '=', 'completed')]"/>
+                    <separator/>
+                    <filter string="Apartment" name="apartment" domain="[('building_type', '=', 'apartment')]"/>
+                    <filter string="Villa" name="villa" domain="[('building_type', '=', 'villa')]"/>
+                    <filter string="Office" name="office" domain="[('building_type', '=', 'office')]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                        <filter string="Developer" name="group_developer" context="{'group_by': 'developer_id'}"/>
+                        <filter string="Sector" name="group_sector" context="{'group_by': 'sector_id'}"/>
+                        <filter string="Building Type" name="group_type" context="{'group_by': 'building_type'}"/>
+                        <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Building Action -->
+        <record id="action_real_estate_building" model="ir.actions.act_window">
+            <field name="name">Real Estate Buildings</field>
+            <field name="res_model">real.estate.building</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_real_estate_building_search"/>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+
+    </data>
+</odoo>

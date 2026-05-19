@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- CRM Stage Form View Extension -->
+        <record id="view_crm_stage_form_real_estate" model="ir.ui.view">
+            <field name="name">crm.stage.form.real.estate</field>
+            <field name="model">crm.stage</field>
+            <field name="inherit_id" ref="crm.crm_stage_form"/>
+            <field name="arch" type="xml">
+                <!-- Add Real Estate Actions section after the main group and before Requirements -->
+                <xpath expr="//group[field[@name='team_count']]" position="after">
+                    <separator string="Stage Visibility"/>
+                    <group>
+                        <field name="stage_scope"/>
+                    </group>
+                    <separator string="Real Estate Actions"/>
+                    <group>
+                        <field name="show_create_loi"/>
+                        <field name="show_view_loi"/>
+                        <field name="show_generate_installments"/>
+                        <field name="show_share_unit"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
+

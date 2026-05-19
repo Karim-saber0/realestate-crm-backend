@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Main Menu -->
+        <menuitem id="menu_real_estate_main" 
+                  name="Real Estate CRM" 
+                  sequence="10"/>
+
+        <!-- Projects Menu -->
+        <menuitem id="menu_real_estate_projects" 
+                  name="Projects" 
+                  parent="menu_real_estate_main" 
+                  action="action_real_estate_project" 
+                  sequence="10"/>
+
+        <!-- Sectors Menu -->
+        <menuitem id="menu_real_estate_sectors" 
+                  name="Sectors" 
+                  parent="menu_real_estate_main" 
+                  action="action_real_estate_sector" 
+                  sequence="20"/>
+
+        <!-- Buildings Menu -->
+        <menuitem id="menu_real_estate_buildings" 
+                  name="Buildings" 
+                  parent="menu_real_estate_main" 
+                  action="action_real_estate_building" 
+                  sequence="30"/>
+
+        <!-- Units Menu -->
+        <menuitem id="menu_real_estate_units" 
+                  name="Units" 
+                  parent="menu_real_estate_main" 
+                  action="action_real_estate_unit" 
+                  sequence="40"/>
+
+        <!-- CRM Menu -->
+        <menuitem id="menu_real_estate_crm" 
+                  name="CRM" 
+                  parent="menu_real_estate_main" 
+                  sequence="50"/>
+
+        <!-- Opportunities Menu -->
+        <menuitem id="menu_real_estate_opportunities" 
+                  name="Opportunities" 
+                  parent="menu_real_estate_crm" 
+                  action="crm.crm_lead_action_pipeline" 
+                  sequence="10"/>
+
+        <!-- Activities Menu -->
+        <menuitem id="menu_real_estate_activities" 
+                  name="Activities" 
+                  parent="menu_real_estate_crm" 
+                  action="mail.mail_activity_action" 
+                  sequence="20"/>
+
+        <!-- Sales Menu -->
+        <menuitem id="menu_real_estate_sales" 
+                  name="Sales" 
+                  parent="menu_real_estate_main" 
+                  sequence="60"/>
+
+        <!-- LOI Menu -->
+        <menuitem id="menu_real_estate_loi" 
+                  name="Letters of Intent" 
+                  parent="menu_real_estate_sales" 
+                  action="action_real_estate_loi" 
+                  sequence="10"/>
+
+        <!-- Reports Menu -->
+        <menuitem id="menu_real_estate_reports" 
+                  name="Reports" 
+                  parent="menu_real_estate_main" 
+                  sequence="70"/>
+
+        <!-- Configuration Menu -->
+        <menuitem id="menu_real_estate_config" 
+                  name="Configuration" 
+                  parent="menu_real_estate_main" 
+                  sequence="80"/>
+
+        <!-- Configuration / Unit Types (action defined in unit_category_views.xml, loaded before this file — menu must be here so parent exists) -->
+        <menuitem id="menu_real_estate_unit_category"
+                  name="Unit Types"
+                  parent="menu_real_estate_config"
+                  action="action_real_estate_unit_category"
+                  sequence="10"/>
+
+        <menuitem id="menu_real_estate_installment_system"
+                  name="Installment Templates"
+                  parent="menu_real_estate_config"
+                  action="action_real_estate_installment_system"
+                  sequence="20"/>
+
+    </data>
+</odoo>
