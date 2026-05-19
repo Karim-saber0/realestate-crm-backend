@@ -58,7 +58,10 @@ All successful responses use JSON with a top-level **`success: true`** where not
    - **`GET .../installments`** to display the schedule.
 
 **Important:** Installment **GET/POST** routes only work if the CRM opportunity’s **Salesperson** (`user_id`) is the **same user** as the one logged in via the API. Otherwise you get **`403 Forbidden`**.
-
+**Geolocation requirements:** 
+- Opportunities must have **`agent_latitude`** and **`agent_longitude`** populated to appear in map dashboard filters.
+- If creating opportunities via the API, provide `agent_latitude` and `agent_longitude` in the POST body; these capture the salesperson's location when the opportunity was created.
+- Linked units must also have **`latitude`** and **`longitude`** for proper geolocation filtering on the map.
 **Prerequisites to regenerate installments** (same rules as Odoo “Generate schedule”):
 
 - Record must be an **opportunity** (not a lead).
@@ -75,7 +78,62 @@ Unless stated otherwise: **`auth: user`**, send session cookie, **`Content-Type:
 
 | Method | Path | Body / query | Notes |
 |--------|------|----------------|------|
-| **GET** | `/api/real-estate/projects` | — | Active projects list. |
+| **GET** | `/api/real-estate/projects` | — | Returns the active project portfolio payload. |
+
+**Exact payload shape**
+
+```json
+{
+  "success": true,
+  "projects": [
+    {
+      "id": 1,
+      "name": "Ocean View Residences",
+      "code": "OVR-001",
+      "sector_id": [3, "North Sector"],
+      "location": "Riverside Avenue, Cairo",
+      "total_units": 120
+    }
+  ]
+}
+```
+
+**Notes**
+
+- `sector_id` is a two-item relation array `[id, name]`.
+- If a project has no linked sector, `sector_id` is `null`.
+
+---
+
+### Buildings
+
+| Method | Path | Query parameters | Notes |
+|--------|------|------------------|------|
+| **GET** | `/api/real-estate/buildings` | `project_id` (optional) | Returns active buildings, optionally filtered to one project. |
+
+**Exact payload shape**
+
+```json
+{
+  "success": true,
+  "buildings": [
+    {
+      "id": 7,
+      "name": "Tower B",
+      "project_id": [1, "Ocean View Residences"],
+      "floors_count": 24,
+      "amenities": [
+        "Rooftop pool"
+      ]
+    }
+  ]
+}
+```
+
+**Notes**
+
+- `amenities` is an array of strings. When the model has no dedicated amenities field, the backend currently falls back to the building description as a single entry.
+- `project_id` is `null` if the building has no parent project.
 
 ---
 
@@ -83,9 +141,39 @@ Unless stated otherwise: **`auth: user`**, send session cookie, **`Content-Type:
 
 | Method | Path | Query parameters | Notes |
 |--------|------|------------------|------|
-| **GET** | `/api/real-estate/units` | `project_id` (optional), `status` (optional) | Filters active units. Example: `/api/real-estate/units?project_id=3` |
+| **GET** | `/api/real-estate/units` | `building_id` (optional), `status` (optional), `project_id` (optional legacy compatibility filter) | Returns active units with coordinates. |
 
-No body.
+**Valid `status` filters**
+
+- `available`
+- `reserved`
+- `sold`
+
+**Exact payload shape**
+
+```json
+{
+  "success": true,
+  "units": [
+    {
+      "id": 42,
+      "name": "Apartment 402",
+      "building_id": [7, "Tower B"],
+      "price": 1250000,
+      "status": "available",
+      "floor": 4,
+      "rooms_count": 3,
+      "latitude": 30.0444,
+      "longitude": 31.2357
+    }
+  ]
+}
+```
+
+**Notes**
+
+- `building_id` is a two-item relation array `[id, name]`.
+- `latitude` and `longitude` are serialized directly from the unit record for map rendering.
 
 ---
 
@@ -150,7 +238,60 @@ No body.
 
 | Method | Path | Notes |
 |--------|------|--------|
-| **GET** | `/api/real-estate/contacts/<contact_id>/phone` | Partner phone / mobile / email |
+| **GET** | `/api/real-estate/contacts` | Returns the authenticated user’s contact directory payload. |
+
+**Backend filter rules**
+
+The backend applies the following live filters when building the contacts directory response:
+
+- `active = True`
+- `customer_rank > 0` **OR** the partner is linked to a `crm.lead` owned by the current authenticated user
+
+This means the response is effectively a cross-filter of:
+
+1. all active partners that are customers, plus
+2. any active partners attached to the current user’s CRM leads
+
+**Success response example**
+
+```json
+{
+  "success": true,
+  "contacts": [
+    {
+      "id": 12,
+      "name": "Amina Hassan",
+      "email": "amina@example.com",
+      "phone": "+201234567890",
+      "company": "Hassan Properties"
+    },
+    {
+      "id": 19,
+      "name": "Omar Farouk",
+      "email": "omar@example.com",
+      "phone": "+201112223334",
+      "company": null
+    }
+  ]
+}
+```
+
+**TypeScript typing shape**
+
+```ts
+export interface ContactDirectoryItem {
+  id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+}
+
+export interface ContactDirectoryResponse {
+  success: boolean;
+  contacts: ContactDirectoryItem[];
+}
+```
 
 ---
 
@@ -193,49 +334,14 @@ Examples:
 **Success (200)**
 
 ```json
-{
-  "success": true,
-  "templates": [
-    {
-      "id": 1,
-      "code": "STD12",
-      "name": "12 months standard",
-      "active": true,
-      "valid_from": null,
-      "valid_to": null,
-      "duration_years": 1,
-      "payment_frequency": "monthly",
-      "installments_per_year": 12,
-      "installment_count": 12,
-      "dp_type": "percent",
-      "down_payment_percent": 10,
-      "down_payment_amount": 0,
-      "disc_type": "percent",
-      "discount_percent": 0,
-      "discount_amount": 0,
-      "pen_type": "percent",
-      "penalty_percent": 0,
-      "penalty_amount": 0,
-      "grace_period_days": 0,
-      "scope_project_enabled": false,
-      "scope_project_id": null,
-      "scope_project_name": null,
-      "scope_phase_enabled": false,
-      "scope_phase_id": null,
-      "scope_phase_name": null,
-      "bullet_lines": [
-        {
-          "id": 1,
-          "sequence": 10,
-          "name": "Annual bullet",
-          "frequency": "annual",
-          "value_type": "percent",
-          "amount_value": 5
-        }
-      ]
-    }
-  ]
-}
+[
+  {
+    "id": 1,
+    "name": "12 months standard",
+    "down_payment_percentage": 10,
+    "number_of_installments": 12
+  }
+]
 ```
 
 ---
@@ -250,36 +356,22 @@ Examples:
 **Success (200)**
 
 ```json
-{
-  "success": true,
-  "opportunity_id": 42,
-  "installment_system_id": 1,
-  "installment_system_name": "12 months standard",
-  "installment_base_price": 1500000,
-  "installment_start_date": "2026-05-01",
-  "unit_price": 1500000,
-  "lines": [
-    {
-      "id": 100,
-      "installment_no": 1,
-      "installment_type": "down_payment",
-      "due_date": "2026-05-01",
-      "amount": 150000,
-      "discount_amount": 0,
-      "penalty_rate": 0,
-      "penalty_amount_fixed": 0,
-      "grace_days": 0,
-      "remaining_installment": 150000,
-      "remaining_penalty": 0,
-      "total_payable": 150000,
-      "status": "upcoming",
-      "currency": "USD"
-    }
-  ]
-}
+[
+  {
+    "id": 100,
+    "opportunity_id": 42,
+    "amount": 150000,
+    "due_date": "2026-05-01",
+    "payment_status": "pending"
+  }
+]
 ```
 
-**`installment_type`** values (examples): `down_payment`, `installment`, `milestone`, etc. (see Odoo model `real.estate.installment.line`).
+**`payment_status` values**
+
+- `paid`
+- `pending`
+- `overdue`
 
 **Errors:** `404` not found, `400` not an opportunity, `403` forbidden (wrong salesperson).
 
@@ -335,6 +427,7 @@ Empty body `{}` is valid: updates nothing, then runs generation with current opp
 | CORS | If the SPA is on **another domain**, you must configure CORS and credentials on the reverse proxy or Odoo; same-origin SPAs avoid this. |
 | Installments | Ensure opportunity has **unit** + **template** before calling regenerate; handle `400` `error` text for user messaging. |
 | Salesperson | API installments only for opportunities assigned to the logged-in user. |
+| Local test records | See the module demo data for `demo_opportunity` and `demo_opportunity_2`, created for login `demo.agent` / `demo`. |
 
 ---
 

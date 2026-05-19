@@ -119,9 +119,21 @@
             <field name="country_id" ref="base.us"/>
         </record>
 
-        <!-- Demo Opportunity -->
+        <!-- Demo Sales Agent for API testing -->
+        <record id="demo_sales_agent" model="res.users">
+            <field name="name">Demo Sales Agent</field>
+            <field name="login">demo.agent</field>
+            <field name="password">demo</field>
+            <field name="active">True</field>
+            <field name="email">demo.agent@example.com</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('crm.group_use_lead')])]"/>
+        </record>
+
+        <!-- Demo Opportunities -->
         <record id="demo_opportunity" model="crm.lead">
             <field name="name">John Smith - Unit 101 Interest</field>
+            <field name="type">opportunity</field>
+            <field name="user_id" ref="demo_sales_agent"/>
             <field name="partner_id" ref="demo_customer"/>
             <field name="project_id" ref="demo_project"/>
             <field name="sector_id" ref="demo_sector"/>
@@ -135,6 +147,27 @@
             <field name="financing_needed">True</field>
             <field name="expected_revenue">500000</field>
             <field name="probability">75</field>
+            <field name="agent_latitude">40.7128</field>
+            <field name="agent_longitude">-74.0060</field>
+        </record>
+
+        <record id="demo_opportunity_2" model="crm.lead">
+            <field name="name">John Smith - Unit 201 Follow Up</field>
+            <field name="type">opportunity</field>
+            <field name="user_id" ref="demo_sales_agent"/>
+            <field name="partner_id" ref="demo_customer"/>
+            <field name="project_id" ref="demo_project"/>
+            <field name="sector_id" ref="demo_sector"/>
+            <field name="building_id" ref="demo_building"/>
+            <field name="unit_id" ref="demo_unit_2"/>
+            <field name="property_type">residential</field>
+            <field name="budget_min">700000</field>
+            <field name="budget_max">800000</field>
+            <field name="preferred_location">Demo City</field>
+            <field name="move_in_date">2024-07-01</field>
+            <field name="financing_needed">True</field>
+            <field name="expected_revenue">750000</field>
+            <field name="probability">60</field>
             <field name="agent_latitude">40.7128</field>
             <field name="agent_longitude">-74.0060</field>
         </record>

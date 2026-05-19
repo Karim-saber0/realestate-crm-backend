@@ -1,0 +1,10 @@
+{
+    "python.analysis.extraPaths": [
+        "D:\\odoo-18.0",
+        "D:\\odoo-18.0\\addons"
+    ],
+    "python.autoComplete.extraPaths": [
+        "D:\\odoo-18.0",
+        "D:\\odoo-18.0\\addons"
+    ]
+}
