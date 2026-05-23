@@ -243,7 +243,7 @@ class RealEstateMobileAPI(http.Controller):
 
         return self._json_response({'success': True, 'projects': result})
 
-    @http.route('/api/real-estate/buildings', type='http', auth='none', methods=['GET', 'OPTIONS'], csrf=False)
+    @http.route('/api/real-estate/buildings', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
     def get_buildings(self, **kwargs):
         """Get active buildings, optionally filtered by project_id."""
         if request.httprequest.method == 'OPTIONS':
@@ -314,19 +314,23 @@ class RealEstateMobileAPI(http.Controller):
         result = []
 
         for unit in units:
-            result.append({
-                'id': unit.id,
-                'name': unit.name,
-                'building_id': [unit.building_id.id, unit.building_id.name] if unit.building_id else None,
-                'price': float(unit.price or 0.0),
-                'status': unit.status,
-                'floor': int(unit.floor or 0),
-                'rooms_count': int((unit.bedrooms or 0) + (unit.bathrooms or 0)),
-                'latitude': float(unit.latitude) if unit.latitude is not None else None,
-                'longitude': float(unit.longitude) if unit.longitude is not None else None,
-            })
+            result.append(self._serialize_unit_summary(unit))
 
         return self._json_response({'success': True, 'units': result})
+
+    @http.route('/api/real-estate/units/<int:unit_id>', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
+    def get_unit_detail(self, unit_id, **kwargs):
+        """Get a single unit with expanded detail payload for the detail modal."""
+        if request.httprequest.method == 'OPTIONS':
+            return self._get_preflight_response()
+        return self._api_exec('get_unit_detail', lambda: self._get_unit_detail_impl(unit_id))
+
+    def _get_unit_detail_impl(self, unit_id):
+        unit = request.env['real.estate.unit'].browse(int(unit_id))
+        if not unit.exists():
+            return self._json_response({'error': 'Unit not found'}, 404)
+
+        return self._json_response({'success': True, 'unit': self._serialize_unit_detail(unit)})
 
     @http.route('/api/real-estate/opportunities', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
     def get_opportunities(self, **kwargs):
@@ -563,7 +567,7 @@ class RealEstateMobileAPI(http.Controller):
             'message': 'Activity completed successfully'
         })
 
-    @http.route('/api/real-estate/contacts/<int:contact_id>/phone', type='http', auth='none', methods=['GET', 'OPTIONS'], csrf=False)
+    @http.route('/api/real-estate/contacts/<int:contact_id>/phone', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
     def get_contact_phone(self, contact_id, **kwargs):
         """Get contact phone number for click-to-call"""
         if request.httprequest.method == 'OPTIONS':
@@ -707,7 +711,7 @@ class RealEstateMobileAPI(http.Controller):
             'message': 'Contact updated successfully',
         })
 
-    @http.route('/api/real-estate/units/<int:unit_id>/whatsapp', type='http', auth='none', methods=['GET', 'OPTIONS'], csrf=False)
+    @http.route('/api/real-estate/units/<int:unit_id>/whatsapp', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
     def get_unit_whatsapp_link(self, unit_id, **kwargs):
         """Get WhatsApp deep link for unit sharing"""
         if request.httprequest.method == 'OPTIONS':
@@ -753,7 +757,7 @@ class RealEstateMobileAPI(http.Controller):
             'message': message,
         })
 
-    @http.route('/api/real-estate/map-data', type='http', auth='none', methods=['GET', 'OPTIONS'], csrf=False)
+    @http.route('/api/real-estate/map-data', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
     def get_map_data(self, **kwargs):
         """Get all property locations for map display"""
         if request.httprequest.method == 'OPTIONS':
@@ -877,6 +881,104 @@ class RealEstateMobileAPI(http.Controller):
         response.status_code = status
         return self._cors_headers(response)
 
+    def _serialize_partner(self, partner):
+        if not partner:
+            return None
+
+        return {
+            'id': int(partner.id),
+            'name': partner.name,
+            'email': partner.email or None,
+            'phone': partner.phone or None,
+            'mobile': partner.mobile or None,
+            'website': partner.website or None,
+            'company_name': partner.parent_id.name if partner.parent_id else None,
+        }
+
+    def _serialize_unit_summary(self, unit):
+        unit_type_label = dict(unit._fields['unit_type'].selection).get(unit.unit_type, unit.unit_type)
+
+        return {
+            'id': unit.id,
+            'name': unit.name,
+            'code': unit.code,
+            'project_id': unit.project_id.id if unit.project_id else None,
+            'project_name': unit.project_id.name if unit.project_id else None,
+            'building_id': [unit.building_id.id, unit.building_id.name] if unit.building_id else None,
+            'building_name': unit.building_id.name if unit.building_id else None,
+            'sector_name': unit.sector_id.name if unit.sector_id else None,
+            'price': float(unit.price or 0.0),
+            'status': unit.status,
+            'floor': int(unit.floor or 0),
+            'rooms_count': int((unit.bedrooms or 0) + (unit.bathrooms or 0)),
+            'bedrooms': int(unit.bedrooms or 0),
+            'bathrooms': int(unit.bathrooms or 0),
+            'area_sqft': float(unit.area_sqft or 0.0),
+            'area_sqm': float(unit.area_sqm or 0.0),
+            'unit_type': unit.unit_type,
+            'unit_type_label': unit_type_label,
+            'latitude': float(unit.latitude) if unit.latitude is not None else None,
+            'longitude': float(unit.longitude) if unit.longitude is not None else None,
+        }
+
+    def _serialize_unit_detail(self, unit):
+        unit_type_label = dict(unit._fields['unit_type'].selection).get(unit.unit_type, unit.unit_type)
+        currency = unit.currency_id
+
+        return {
+            'id': unit.id,
+            'name': unit.name,
+            'code': unit.code,
+            'project': {
+                'id': unit.project_id.id if unit.project_id else None,
+                'name': unit.project_id.name if unit.project_id else None,
+            },
+            'building': {
+                'id': unit.building_id.id if unit.building_id else None,
+                'name': unit.building_id.name if unit.building_id else None,
+            },
+            'sector': {
+                'id': unit.sector_id.id if unit.sector_id else None,
+                'name': unit.sector_id.name if unit.sector_id else None,
+            },
+            'developer': self._serialize_partner(unit.developer_id),
+            'broker': self._serialize_partner(unit.broker_id),
+            'unit_type': unit.unit_type,
+            'unit_type_label': unit_type_label,
+            'unit_category': {
+                'id': unit.unit_category_id.id if unit.unit_category_id else None,
+                'name': unit.unit_category_id.name if unit.unit_category_id else None,
+            },
+            'unit_subcategory': {
+                'id': unit.unit_subcategory_id.id if unit.unit_subcategory_id else None,
+                'name': unit.unit_subcategory_id.name if unit.unit_subcategory_id else None,
+            },
+            'floor': int(unit.floor or 0),
+            'bedrooms': int(unit.bedrooms or 0),
+            'bathrooms': int(unit.bathrooms or 0),
+            'area_sqft': float(unit.area_sqft or 0.0),
+            'area_sqm': float(unit.area_sqm or 0.0),
+            'price': float(unit.price or 0.0),
+            'currency': {
+                'id': currency.id if currency else None,
+                'name': currency.name if currency else None,
+                'symbol': currency.symbol if currency else None,
+            },
+            'location': unit.location,
+            'latitude': float(unit.latitude) if unit.latitude is not None else None,
+            'longitude': float(unit.longitude) if unit.longitude is not None else None,
+            'status': unit.status,
+            'description': unit.description,
+            'features': unit.features,
+            'balcony': bool(unit.balcony),
+            'parking': bool(unit.parking),
+            'furnished': bool(unit.furnished),
+            'active': bool(unit.active),
+            'floor_plans': [],
+            'opportunities_count': len(unit.opportunity_ids),
+            'loi_count': len(unit.loi_ids),
+        }
+
     def _serialize_installment_template(self, tmpl):
         return {
             'id': int(tmpl.id),
@@ -912,7 +1014,7 @@ class RealEstateMobileAPI(http.Controller):
             return None, self._json_response({'error': 'Forbidden'}, 403)
         return opp, None
 
-    @http.route('/api/real-estate/installment-templates', type='http', auth='none', methods=['GET', 'OPTIONS'], csrf=False)
+    @http.route('/api/real-estate/installment-templates', type='http', auth='user', methods=['GET', 'OPTIONS'], csrf=False)
     def get_installment_templates(self, **kwargs):
         """List active installment templates; optional project_id / sector_id match opportunity rules."""
         if request.httprequest.method == 'OPTIONS':
@@ -983,7 +1085,7 @@ class RealEstateMobileAPI(http.Controller):
     @http.route(
         '/api/real-estate/opportunities/<int:opportunity_id>/installments',
         type='http',
-        auth='none',
+        auth='user',
         methods=['GET', 'OPTIONS'],
         csrf=False,
     )
@@ -1009,7 +1111,7 @@ class RealEstateMobileAPI(http.Controller):
     @http.route(
         '/api/real-estate/opportunities/<int:opportunity_id>/installments/regenerate',
         type='http',
-        auth='none',
+        auth='user',
         methods=['POST', 'OPTIONS'],
         csrf=False,
     )

@@ -141,7 +141,8 @@ Unless stated otherwise: **`auth: user`**, send session cookie, **`Content-Type:
 
 | Method | Path | Query parameters | Notes |
 |--------|------|------------------|------|
-| **GET** | `/api/real-estate/units` | `building_id` (optional), `status` (optional), `project_id` (optional legacy compatibility filter) | Returns active units with coordinates. |
+| **GET** | `/api/real-estate/units` | `building_id` (optional), `status` (optional), `project_id` (optional legacy compatibility filter) | Returns active units with coordinates and list-view fields. |
+| **GET** | `/api/real-estate/units/<unit_id>` | — | Returns the expanded single-unit detail payload for the detail modal. |
 
 **Valid `status` filters**
 
@@ -158,11 +159,22 @@ Unless stated otherwise: **`auth: user`**, send session cookie, **`Content-Type:
     {
       "id": 42,
       "name": "Apartment 402",
+      "code": "U402",
+      "project_id": 7,
+      "project_name": "Ocean View Residences",
       "building_id": [7, "Tower B"],
+      "building_name": "Tower B",
+      "sector_name": "North Sector",
       "price": 1250000,
       "status": "available",
       "floor": 4,
       "rooms_count": 3,
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "area_sqft": 1100,
+      "area_sqm": 102.19,
+      "unit_type": "br2",
+      "unit_type_label": "2 Bedrooms",
       "latitude": 30.0444,
       "longitude": 31.2357
     }
@@ -173,7 +185,64 @@ Unless stated otherwise: **`auth: user`**, send session cookie, **`Content-Type:
 **Notes**
 
 - `building_id` is a two-item relation array `[id, name]`.
+- `project_name` resolves the related project name as a string.
 - `latitude` and `longitude` are serialized directly from the unit record for map rendering.
+- `unit_type_label` is the human-readable label derived from Odoo's selection.
+
+**Single unit detail payload shape**
+
+```json
+{
+  "success": true,
+  "unit": {
+    "id": 42,
+    "name": "Apartment 402",
+    "code": "U402",
+    "project": { "id": 7, "name": "Ocean View Residences" },
+    "building": { "id": 7, "name": "Tower B" },
+    "sector": { "id": 3, "name": "North Sector" },
+    "developer": {
+      "id": 24,
+      "name": "Demo Developer",
+      "email": "dev@example.com",
+      "phone": "+201000000000",
+      "mobile": null,
+      "website": null,
+      "company_name": null
+    },
+    "broker": null,
+    "unit_type": "br2",
+    "unit_type_label": "2 Bedrooms",
+    "unit_category": { "id": null, "name": null },
+    "unit_subcategory": { "id": null, "name": null },
+    "floor": 4,
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "area_sqft": 1100,
+    "area_sqm": 102.19,
+    "price": 1250000,
+    "currency": { "id": 1, "name": "USD", "symbol": "$" },
+    "location": "Apartment 402, Tower B",
+    "latitude": 30.0444,
+    "longitude": 31.2357,
+    "status": "available",
+    "description": "Spacious 2-bedroom apartment with city view",
+    "features": "City view, Modern kitchen, Balcony",
+    "balcony": true,
+    "parking": true,
+    "furnished": false,
+    "active": true,
+    "floor_plans": [],
+    "opportunities_count": 1,
+    "loi_count": 0
+  }
+}
+```
+
+**Notes**
+
+- `broker` is `null` when no broker is assigned on the unit.
+- `floor_plans` is currently an empty array because the Odoo unit model does not expose a dedicated floor-plan field in this module.
 
 ---
 
